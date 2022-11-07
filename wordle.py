@@ -12,11 +12,7 @@ def ternary(n: int) -> str:  # turn a decimal into a ternary string
 
 
 def iternary(s: str) -> int:  # turn a ternary string into a decimal number
-    s = s[::-1]
-    n = 0
-    for i in range(len(s)):
-        n += (int(s[i]) * (3 ** int(i)))
-    return n
+    return int(s, base=3)
 
 
 def check_word(guess: str, answer: str) -> str:  # check the guess and return a ternary number.
