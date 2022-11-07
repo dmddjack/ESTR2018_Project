@@ -1,4 +1,5 @@
 import math
+import json
 
 
 def info(p: float) -> float:
@@ -17,3 +18,21 @@ def entropy(pmf: list[float]) -> float:
         if p != 0:
             result += info(p) * p
     return result
+
+
+def greedy_find(n: int = 10) -> list:
+    with open("pmfs.json", "r") as f:
+        pmfs = json.load(f)
+        entropy_list = []
+        for guess, pmf in pmfs.items():
+            entropy_list.append((guess, entropy(pmf.values())))
+    entropy_list.sort(key=lambda x: x[1], reverse=True)
+    return entropy_list[:n]
+
+
+def recur_find() -> str:
+    pass
+
+
+if __name__ == "__main__":
+    print(greedy_find())
