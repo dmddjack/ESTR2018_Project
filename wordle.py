@@ -1,21 +1,24 @@
-# This is a simplified wordle game
+# This is a simplified Wordle game
 import random
 
 
-def ternary(n: int) -> str:  # turn a decimal into a ternary string
-    l = []
+def ternary(n: int) -> str:
+    """Turn a decimal into a ternary string"""
+    result = []
     while True:
-        n, reminder = divmod(n, 3)  # divisor and the reminder
-        l.append(str(reminder))  # store the reminders in a list
+        n, remainder = divmod(n, 3)  # quotient and the remainder
+        result.append(str(remainder))  # store the reminders in a list
         if n == 0:
-            return " ".join(l[::-1])  # return a ternary string
+            return "".join(result[::-1])  # return a ternary string
 
 
-def iternary(s: str) -> int:  # turn a ternary string into a decimal number
+def iternary(s: str) -> int:
+    """Turn a ternary string into a decimal number"""
     return int(s, base=3)
 
 
-def check_word(guess: str, answer: str) -> str:  # check the guess and return a ternary number.
+def check_word(guess: str, answer: str) -> str:
+    """check the guess and return the matching pattern as ternary number."""
     result = ''
 
     def redundancy(guess: str, answer: str, func: bool = True) -> bool | str:
@@ -58,13 +61,13 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
     and return the answer list if is_answer == False. """
     random.seed(seed)
     with open('word_list.txt', 'r') as f:
-        list = []
+        ans_list = []
         lines = f.readlines()
         for line in lines:
-            list.append(line[:5])  # exclude the "newline"
-    answer = random.sample(list, 1)[0]  # get a random answer from the word list
+            ans_list.append(line[:5])  # exclude the "newline"
+    answer = random.sample(ans_list, 1)[0]  # get a random answer from the word list
     f.close()
-    return answer if is_answer else list
+    return answer if is_answer else ans_list
 
 
 def main() -> None:  # flow of the game
@@ -79,9 +82,9 @@ def main() -> None:  # flow of the game
                 break
             else:
                 print('Not in the answer list. Please enter again. ')
-        print(check_word(guess, answer))
+        print(f"{check_word(guess, answer):>30}")
         if check_word(guess, answer) == '22222':
-            print(f'Correct! You have {attempt} attempt(s).')
+            print(f'Correct! Number of attempt: {attempt}.')
             break
         else:
             attempt += 1
