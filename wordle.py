@@ -18,7 +18,7 @@ def iternary(s: str) -> int:  # turn a ternary string into a decimal number
 def check_word(guess: str, answer: str) -> str:  # check the guess and return a ternary number.
     result = ''
 
-    def redundancy(guess: str, answer: str, func: bool = True) -> bool:
+    def redundancy(guess: str, answer: str, func: bool = True) -> bool | str:
         flag = 0
         for word in guess:
             if word in answer and guess.count(word) > answer.count(word):
