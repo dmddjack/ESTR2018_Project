@@ -3,11 +3,11 @@ from wordle import check_word, iternary
 import os
 
 
-def create_map(input_name="word_list", output_name="input_answer_map") -> None:
+def create_map(file=0) -> None:
     """Create a 2D JSON file that the first key is guess, second key is answer,
     stored value is a 5-digit ternary string."""
-    with open(f"{input_name}.txt", "r") as in_f:
-        with open(f"{output_name}.json", "w") as out_f:
+    with open(f"word_list_{file}.txt", "r") as in_f:
+        with open(f"input_answer_map_{file}.json", "w") as out_f:
             result = dict()
             word_list = in_f.read().split()
             for guess in word_list:
@@ -15,14 +15,14 @@ def create_map(input_name="word_list", output_name="input_answer_map") -> None:
                 for answer in word_list:
                     result[guess][answer] = check_word(guess, answer)
             json.dump(result, out_f, indent=4)
-            print(f"File {output_name}.json created.")
+            print(f"File input_answer_map_{file}.json created.")
 
 
-def create_mf(input_name="input_answer_map", output_name="input_mass_function") -> None:
+def create_mf(file=0) -> None:
     """Create a 2D JSON file that the first key is guess, second key is a 5-digit ternary string,
     stored value is a list of possible answers"""
-    with open(f"{input_name}.json", "r") as in_f:
-        with open(f"{output_name}", "w") as out_f:
+    with open(f"input_answer_map_{file}.json", "r") as in_f:
+        with open(f"input_mass_function_{file}.json", "w") as out_f:
             result = dict()
             in_ans_map = json.load(in_f)
             for guess, answers in in_ans_map.items():
@@ -35,15 +35,15 @@ def create_mf(input_name="input_answer_map", output_name="input_mass_function") 
             for each, answers in result.items():
                 result[each] = dict(sorted(answers.items(), key=lambda x: iternary(x[0])))
             json.dump(result, out_f, indent=4)
-            print(f"File {output_name}.json created.")
+            print(f"File input_mass_function_{file}.json created.")
 
 
-def create_pmf(input_name="input_mass_function", output_name="pmfs") -> None:
+def create_pmf(file=0) -> None:
     """Create a 2D JSON file as a lists of PMF of random variable X given the guess, where X is the possible output
     patterns encoded as a 5-digit ternary string. The first key is guess, the second key is the 5-digit ternary number,
     the output is the probability"""
-    with open(f"{input_name}.json", "r") as in_f:
-        with open(f"{output_name}.json", "w") as out_f:
+    with open(f"input_mass_function_{file}.json", "r") as in_f:
+        with open(f"pmfs_{file}.json", "w") as out_f:
 
             result = dict()
             mass_func = json.load(in_f)
@@ -53,27 +53,33 @@ def create_pmf(input_name="input_mass_function", output_name="pmfs") -> None:
                 for pattern, answers in patterns.items():
                     result[guess][pattern] = len(answers) / size
             json.dump(result, out_f, indent=4)
-            print(f"File {output_name}.json created.")
+            print(f"File pmfs_{file}.json created.")
 
 
-def del_map() -> None:
+def create_jsons(file=0) -> None:
+    create_map(file)
+    create_mf(file)
+    create_pmf(file)
+
+
+def del_map(file=0) -> None:
     """Delete input_answer_map.json"""
-    os.remove("./input_answer_map.json")
+    os.remove(f"input_answer_map_{file}.json")
 
 
-def del_mf() -> None:
+def del_mf(file=0) -> None:
     """Delete input_mass_function.json"""
-    os.remove("./input_mass_function.json")
+    os.remove(f"input_mass_function_{file}.json")
 
 
-def del_pmfs() -> None:
+def del_pmfs(file=0) -> None:
     """Delete pmfs.json"""
-    os.remove("pmfs.json")
+    os.remove(f"pmfs_{file}.json")
 
 
 if __name__ == "__main__":
-    # create_map()
-    # create_mf()
+    create_map()
+    create_mf()
     # del_map()
     # del_mf()
     create_pmf()
