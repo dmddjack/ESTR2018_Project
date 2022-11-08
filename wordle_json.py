@@ -1,5 +1,6 @@
 import json
 from wordle import check_word, iternary
+from wordle_bot import one_step_greedy, two_step_greedy
 import os
 
 
@@ -20,7 +21,7 @@ def create_map(file=0) -> None:
 
 def create_mf(file=0) -> None:
     """Create a 2D JSON file that the first key is guess, second key is a 5-digit ternary string,
-    stored value is a list of possible answers"""
+    stored value is a list of possible answers."""
     with open(f"input_answer_map_{file}.json", "r") as in_f:
         with open(f"input_mass_function_{file}.json", "w") as out_f:
             result = dict()
@@ -41,7 +42,7 @@ def create_mf(file=0) -> None:
 def create_pmf(file=0) -> None:
     """Create a 2D JSON file as a lists of PMF of random variable X given the guess, where X is the possible output
     patterns encoded as a 5-digit ternary string. The first key is guess, the second key is the 5-digit ternary number,
-    the output is the probability"""
+    the output is the probability."""
     with open(f"input_mass_function_{file}.json", "r") as in_f:
         with open(f"pmfs_{file}.json", "w") as out_f:
 
@@ -56,7 +57,14 @@ def create_pmf(file=0) -> None:
             print(f"File pmfs_{file}.json created.")
 
 
+def create_greedy() -> None:
+    """Store the initial result of one_step_greedy and two_step_greedy in the corresponding JSON file
+    to speed up the program."""
+    pass
+
+
 def create_jsons(file=0) -> None:
+    """Create all the required JSON file for wordle_bot.py in a row."""
     create_map(file)
     create_mf(file)
     create_pmf(file)

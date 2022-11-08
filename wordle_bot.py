@@ -31,7 +31,7 @@ def eliminate(guess: str, pattern: str, n: int = 0) -> None:
     wordle_json.create_jsons(n)
 
 
-def greedy_find(disp: int = 10, n: int = 0) -> list[tuple]:
+def one_step_greedy(disp: int = 10, n: int = 0) -> list[tuple]:
     """Use the greedy algorithm to find the maximum entropy and the corresponding word in a single step.
     disp indicates the number of items to be returned. the whole list is returned if disp == -1.
     n is the number of times of attempt. Return a list of words and entropy in descending order."""
@@ -44,7 +44,7 @@ def greedy_find(disp: int = 10, n: int = 0) -> list[tuple]:
     return entropy_list[:disp] if disp != -1 else entropy_list
 
 
-def two_steps_find(disp: int = 10, n: int = 0) -> list[tuple]:
+def two_step_greedy(disp: int = 10, n: int = 0) -> list[tuple]:
     """Use the greedy algorithm to find the maximum entropy and the corresponding word in two steps.
     disp indicates the number of items to be returned. the whole list is returned if disp == -1.
     n is the number of times of attempt. Return a list of words and sum of entropy of two steps in descending order."""
@@ -56,7 +56,7 @@ def two_steps_find(disp: int = 10, n: int = 0) -> list[tuple]:
             for pattern, p in pmf.items():  # find maximum entropy at the second step
                 eliminate(guess, pattern, n + 1)
                 wordle_json.create_jsons(n + 1)
-                sec_ord_entropy += pmfs[guess][pattern] * greedy_find(1, n + 1)[0][1]  # weighted average of entropy
+                sec_ord_entropy += pmfs[guess][pattern] * one_step_greedy(1, n + 1)[0][1]  # weighted average of entropy
             entropy_list.append((guess, entropy(pmf.values()), sec_ord_entropy,
                                  entropy(pmf.values()) + sec_ord_entropy))
         entropy_list.sort(key=lambda x: x[-1], reverse=True)
@@ -64,4 +64,4 @@ def two_steps_find(disp: int = 10, n: int = 0) -> list[tuple]:
 
 
 if __name__ == "__main__":
-    print(greedy_find())
+    print(one_step_greedy())

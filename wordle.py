@@ -13,12 +13,12 @@ def ternary(n: int) -> str:
 
 
 def iternary(s: str) -> int:
-    """Turn a ternary string into a decimal number"""
+    """Turn a ternary string into a decimal number."""
     return int(s, base=3)
 
 
 def check_word(guess: str, answer: str) -> str:
-    """check the guess and return the matching pattern as ternary number."""
+    """Check the guess and return the matching pattern as ternary number."""
     result = ''
 
     def redundancy(guess: str, answer: str, func: bool = True) -> bool | str:
@@ -57,8 +57,8 @@ def check_word(guess: str, answer: str) -> str:
 
 
 def generate_answer(seed: int, is_answer=True) -> str | list:
-    """ generate a random answer from the word list if is_answer == True
-    and return the answer list if is_answer == False. """
+    """Generate a random answer from the word list if is_answer == True
+    and return the answer list if is_answer == False."""
     random.seed(seed)
     with open('word_list_0.txt', 'r') as f:
         ans_list = []
@@ -70,7 +70,8 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
     return answer if is_answer else ans_list
 
 
-def main() -> None:  # flow of the game
+def main() -> None:
+    """The flow of the game"""
     attempt = 1
     opportunity = eval(input('Please enter the maximum number of attempts: '))
     seed = eval(input('Please enter a seed: '))
