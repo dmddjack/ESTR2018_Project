@@ -1,94 +1,231 @@
 import json
-from wordle import check_word, iternary
-from wordle_bot import one_step_greedy, two_step_greedy
+import multiprocessing as mp
 import os
+from multiprocessing.managers import BaseManager, NamespaceProxy
+from timeit import timeit
+
+import numpy as np
+import pandas as pd
+
+from wordle import check_word, iternary, ternary
 
 
-def create_map(file=0) -> None:
+class Wordle(int):
+    def __new__(cls, value, words):
+        return super(Wordle, cls).__new__(cls, value)
+
+    def __init__(self, value, words):
+        super().__init__()
+        self.value = int(value)
+        self.word = words[self.value]
+
+    def __mul__(self, other):
+        return check_word(self.word, other.word)
+
+
+class WordleManager(BaseManager):
+    """Discarded."""
+    pass
+
+
+class WordleProxy(NamespaceProxy):
+    """Discarded."""
+    _exposed_ = ('__getattribute__', '__setattr__', '__delattr__', '__mul__')
+
+    def __mul__(self, other):
+        callmethod = object.__getattribute__(self, '_callmethod')
+        return callmethod('__mul__', args=(other,))
+
+
+def blockshaped(arr, nrows, ncols):
+    """
+    ***Discarded.***
+    Return an array of shape (nrows, ncols, n, m) where
+    n * nrows, m * ncols = arr.shape.
+    This should be a view of the original array.
+    """
+    h, w = arr.shape
+    n, m = h // nrows, w // ncols
+    return arr.reshape(nrows, n, ncols, m).swapaxes(1, 2)
+
+
+def do_dot(a, b, out):
+    """Discarded."""
+    # np.dot(a, b, out)  # does not work. maybe because out is not C-contiguous?
+    out[:] = np.matmul(a, b)  # less efficient because the output is stored in a temporary array?
+    print("hi")
+
+
+def pardot(a, b, nblocks, mblocks, dot_func=do_dot):
+    """
+    ***Discarded.***
+    Return the matrix product a * b.
+    The product is split into nblocks * mblocks partitions that are performed
+    in parallel threads.
+    """
+    n_jobs = nblocks * mblocks
+    print('running {} jobs in parallel'.format(n_jobs))
+
+    out = np.empty((a.shape[0], b.shape[1]), dtype=np.ubyte)
+
+    out_blocks = blockshaped(out, nblocks, mblocks)
+    a_blocks = blockshaped(a, nblocks, 1)
+    b_blocks = blockshaped(b, 1, mblocks)
+
+    processes = []
+    for i in range(nblocks):
+        for j in range(mblocks):
+            pr = mp.Process(target=dot_func,
+                            args=(a_blocks[i, 0, :, :], b_blocks[0, j, :, :], out_blocks[i, j, :, :]))
+            pr.start()
+            processes.append(pr)
+
+    for th in processes:
+        th.join()
+        print(f"th {th} done")
+    print("all th done")
+    result = np.empty((a.shape[0], b.shape[1]), dtype="<U5")
+    for i in range(a.shape[0]):
+        for j in range(b.shape[1]):
+            result[i, j] = ternary(out[i, j])
+    return result
+
+
+def create_map(file=0) -> None | pd.DataFrame:
     """Create a 2D JSON file that the first key is guess, second key is answer,
     stored value is a 5-digit ternary string."""
-    with open(f"word_list_{file}.txt", "r") as in_f:
-        with open(f"input_answer_map_{file}.json", "w") as out_f:
-            result = dict()
-            word_list = in_f.read().split()
-            for guess in word_list:
-                result[guess] = dict()
-                for answer in word_list:
-                    result[guess][answer] = check_word(guess, answer)
+
+    def find_map(data) -> pd.DataFrame:
+        word_index = np.matrix([Wordle(i, data) for i in range(len(data))], dtype=object)
+        result = pd.DataFrame(np.array(word_index.T @ word_index, dtype="<U5"), data, data, dtype="<U5")
+        return result
+
+    if isinstance(file, int):
+        with open(f"word_list_{file}.txt", "r") as in_f, open(f"input_answer_map_{file}.json", "w") as out_f:
+            words = np.array(in_f.read().split())
+            result = find_map(words).to_dict("index")
             json.dump(result, out_f, indent=4)
             print(f"File input_answer_map_{file}.json created.")
+    elif isinstance(file, np.ndarray):
+        """
+        WordleManager.register("Wordle", Wordle, WordleProxy)
+        with WordleManager() as manager:
+            word_index = np.ndarray((1, len(file)), dtype=object)
+            for i in range(len(file)):
+                word_index[0, i] = manager.Wordle(i, file)
+            result = np.array(pardot(word_index.reshape(len(file), 1),
+                                     word_index, 10 , 10), dtype="<U5")
+        """
+        print(file)
+        result = find_map(file)
+        print(f"Dict map created.")
+
+        return result
 
 
-def create_mf(file=0) -> None:
+def create_mf(file=0) -> None | dict:
     """Create a 2D JSON file that the first key is guess, second key is a 5-digit ternary string,
     stored value is a list of possible answers."""
-    with open(f"input_answer_map_{file}.json", "r") as in_f:
-        with open(f"input_mass_function_{file}.json", "w") as out_f:
-            result = dict()
+
+    def find_mass_function(data: dict) -> dict:
+        result = dict()
+        for guess, answers in data.items():
+            result[guess] = dict()
+            for answer, value in answers.items():
+                if value not in result[guess].keys():
+                    result[guess][value] = [answer]
+                else:
+                    result[guess][value].append(answer)
+        for each, answers in result.items():
+            result[each] = dict(sorted(answers.items(), key=lambda x: iternary(x[0])))
+        return result
+
+    if isinstance(file, int):
+        with open(f"input_answer_map_{file}.json", "r") as in_f, open(f"input_mass_function_{file}.json", "w") as out_f:
             in_ans_map = json.load(in_f)
-            for guess, answers in in_ans_map.items():
-                result[guess] = dict()
-                for answer, value in answers.items():
-                    if value not in result[guess].keys():
-                        result[guess][value] = [answer]
-                    else:
-                        result[guess][value].append(answer)
-            for each, answers in result.items():
-                result[each] = dict(sorted(answers.items(), key=lambda x: iternary(x[0])))
+            result = find_mass_function(in_ans_map)
             json.dump(result, out_f, indent=4)
             print(f"File input_mass_function_{file}.json created.")
+    elif isinstance(file, pd.DataFrame):
+        file = file.to_dict("index")
+        result = find_mass_function(file)
+        print(f"Dict mass function created.")
+        return result
 
 
-def create_pmf(file=0) -> None:
+def create_pmf(file=0) -> None | str:
     """Create a 2D JSON file as a lists of PMF of random variable X given the guess, where X is the possible output
     patterns encoded as a 5-digit ternary string. The first key is guess, the second key is the 5-digit ternary number,
     the output is the probability."""
-    with open(f"input_mass_function_{file}.json", "r") as in_f:
-        with open(f"pmfs_{file}.json", "w") as out_f:
 
-            result = dict()
+    def find_pmf(data: dict) -> dict:
+        result = dict()
+        size = len(data)
+        for guess, patterns in data.items():
+            result[guess] = dict()
+            for pattern, answers in patterns.items():
+                result[guess][pattern] = len(answers) / size
+        return result
+
+    if isinstance(file, int):
+        with open(f"input_mass_function_{file}.json", "r") as in_f, open(f"pmfs_{file}.json", "w") as out_f:
             mass_func = json.load(in_f)
-            size = len(mass_func)
-            for guess, patterns in mass_func.items():
-                result[guess] = dict()
-                for pattern, answers in patterns.items():
-                    result[guess][pattern] = len(answers) / size
+            result = find_pmf(mass_func)
             json.dump(result, out_f, indent=4)
             print(f"File pmfs_{file}.json created.")
+    elif isinstance(file, dict):
+        result = find_pmf(file)
+        print(f"Dict pmf created.")
+        return result
 
 
-def create_greedy() -> None:
+def create_greedy() -> None | str:
     """Store the initial result of one_step_greedy and two_step_greedy in the corresponding JSON file
     to speed up the program."""
     pass
 
 
-def create_jsons(file=0) -> None:
-    """Create all the required JSON file for wordle_bot.py in a row."""
-    create_map(file)
-    create_mf(file)
-    create_pmf(file)
+def create_data(file: int | np.ndarray = 0) -> None | dict:
+    """Create all the required data for wordle_bot.py in a row."""
+    if isinstance(file, int):
+        create_map(file)
+        create_mf(file)
+        create_pmf(file)
+    elif isinstance(file, np.ndarray):
+        result = create_pmf(create_mf(create_map(file)))
+        return result
 
 
-def del_map(file=0) -> None:
+def test_create_data():
+    with open("word_list_0.txt", "r") as in_f, open("test_result.json", "w") as out_f:
+        data = in_f.read().split()
+        result = create_data(np.array(data))
+        json.dump(result, out_f, indent=4)
+    print("Done.")
+
+
+def del_map(file=0) -> None | str:
     """Delete input_answer_map.json"""
     os.remove(f"input_answer_map_{file}.json")
 
 
-def del_mf(file=0) -> None:
+def del_mf(file=0) -> None | str:
     """Delete input_mass_function.json"""
     os.remove(f"input_mass_function_{file}.json")
 
 
-def del_pmfs(file=0) -> None:
+def del_pmfs(file=0) -> None | str:
     """Delete pmfs.json"""
     os.remove(f"pmfs_{file}.json")
 
 
 if __name__ == "__main__":
-    create_map()
-    create_mf()
+    # test_create_data()
+    #print(timeit("test_create_data()", number=1, globals=globals()))
+    print(timeit("create_data()", number=1, globals=globals()))
+    # create_map()
+    # create_mf()
     # del_map()
     # del_mf()
-    create_pmf()
+    # create_pmf()
     pass
