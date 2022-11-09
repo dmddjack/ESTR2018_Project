@@ -9,7 +9,7 @@ def ternary(n: int) -> str:
         n, remainder = divmod(n, 3)  # quotient and the remainder
         result.append(str(remainder))  # store the reminders in a list
         if n == 0:
-            return "".join(result[::-1])  # return a ternary string
+            return ("".join(result[::-1])).zfill(5)  # return a ternary string
 
 
 def iternary(s: str) -> int:
