@@ -20,7 +20,7 @@ def info(p: float | np.ndarray) -> float:
 
 def entropy(pmf: list[float]) -> float:
     """Return expected value of information of the input PMF of a random variable"""
-    pmf = np.array(pmf)
+    pmf = np.fromiter(pmf, dtype=float)
     pmf = pmf[pmf != 0]  # filter zero values to avoid ZeroDivisionError
     if np.abs(np.sum(pmf) - 1) > 1e-5:
         raise ValueError("sum of PMF should be 1")
