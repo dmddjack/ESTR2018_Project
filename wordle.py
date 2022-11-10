@@ -1,7 +1,6 @@
 # This is a simplified Wordle game
 import random
 
-
 def ternary(n: int) -> str:
     """Turn a decimal into a ternary string"""
     result = []
@@ -18,6 +17,20 @@ def iternary(s: str) -> int:
 
 
 def check_word(guess: str, answer: str) -> str:
+    answer = list(answer)
+    result = ['0'] * 5
+    for i, each in enumerate(guess):
+        if each == answer[i]:
+            result[i] = '2'
+            answer[i] = None
+    for i, each in enumerate(guess):
+        if result[i] == '0' and each in answer:
+            result[i] = '1'
+            answer.remove(each)
+    return "".join(result)
+
+
+def check_word_old(guess: str, answer: str) -> str:
     """Check the guess and return the matching pattern as ternary number."""
     result = ''
 
