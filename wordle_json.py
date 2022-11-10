@@ -1,13 +1,11 @@
 import json
-import multiprocessing as mp
 import os
-from multiprocessing.managers import BaseManager, NamespaceProxy
 from timeit import timeit
 
 import numpy as np
 import pandas as pd
 
-from wordle import check_word, iternary, ternary
+from wordle import check_word, iternary
 
 
 class Wordle(int):
@@ -23,6 +21,7 @@ class Wordle(int):
         return check_word(self.word, other.word)
 
 
+'''
 class WordleManager(BaseManager):
     """Discarded."""
     pass
@@ -53,7 +52,7 @@ def do_dot(a, b, out):
     """Discarded."""
     # np.dot(a, b, out)  # does not work. maybe because out is not C-contiguous?
     out[:] = np.matmul(a, b)  # less efficient because the output is stored in a temporary array?
-    print("hi")
+    #print("hi")
 
 
 def pardot(a, b, nblocks, mblocks, dot_func=do_dot):
@@ -89,6 +88,7 @@ def pardot(a, b, nblocks, mblocks, dot_func=do_dot):
         for j in range(b.shape[1]):
             result[i, j] = ternary(out[i, j])
     return result
+'''
 
 
 def create_map(file=0) -> None | pd.DataFrame:
@@ -116,14 +116,13 @@ def create_map(file=0) -> None | pd.DataFrame:
             result = np.array(pardot(word_index.reshape(len(file), 1),
                                      word_index, 10 , 10), dtype="<U5")
         """
-        print(file)
         result = find_map(file)
         print(f"Dict map created.")
 
         return result
 
 
-def create_mf(file=0) -> None | dict:
+def create_mf(file: int | pd.DataFrame = 0) -> None | dict:
     """Create a 2D JSON file that the first key is guess, second key is a 5-digit ternary string,
     stored value is a list of possible answers."""
 
@@ -153,12 +152,12 @@ def create_mf(file=0) -> None | dict:
         return result
 
 
-def create_pmf(file=0) -> None | str:
+def create_pmfs(file: int | pd.DataFrame = 0) -> None | str:
     """Create a 2D JSON file as a lists of PMF of random variable X given the guess, where X is the possible output
     patterns encoded as a 5-digit ternary string. The first key is guess, the second key is the 5-digit ternary number,
     the output is the probability."""
 
-    def find_pmf(data: dict) -> dict:
+    def find_pmfs(data: dict) -> dict:
         result = dict()
         size = len(data)
         for guess, patterns in data.items():
@@ -170,12 +169,16 @@ def create_pmf(file=0) -> None | str:
     if isinstance(file, int):
         with open(f"input_mass_function_{file}.json", "r") as in_f, open(f"pmfs_{file}.json", "w") as out_f:
             mass_func = json.load(in_f)
-            result = find_pmf(mass_func)
+            result = find_pmfs(mass_func)
             json.dump(result, out_f, indent=4)
             print(f"File pmfs_{file}.json created.")
-    elif isinstance(file, dict):
-        result = find_pmf(file)
+    elif isinstance(file, pd.DataFrame):
+        file = file.transpose()
+        result = {}
+        for col in file:
+            result[col] = file[col].value_counts(normalize=True, sort=False).to_dict()
         print(f"Dict pmf created.")
+        # print(result)
         return result
 
 
@@ -190,13 +193,14 @@ def create_data(file: int | np.ndarray = 0) -> None | dict:
     if isinstance(file, int):
         create_map(file)
         create_mf(file)
-        create_pmf(file)
+        create_pmfs(file)
     elif isinstance(file, np.ndarray):
-        result = create_pmf(create_mf(create_map(file)))
-        return result
+        pmfs = create_pmfs(create_map(file))
+        return pmfs
 
 
 def test_create_data():
+    """For debugging only."""
     with open("word_list_0.txt", "r") as in_f, open("test_result.json", "w") as out_f:
         data = in_f.read().split()
         result = create_data(np.array(data))
@@ -205,23 +209,23 @@ def test_create_data():
 
 
 def del_map(file=0) -> None | str:
-    """Delete input_answer_map.json"""
+    """Delete input_answer_map_{file}.json"""
     os.remove(f"input_answer_map_{file}.json")
 
 
 def del_mf(file=0) -> None | str:
-    """Delete input_mass_function.json"""
+    """Delete input_mass_function_{file}.json"""
     os.remove(f"input_mass_function_{file}.json")
 
 
 def del_pmfs(file=0) -> None | str:
-    """Delete pmfs.json"""
+    """Delete pmfs_{file}.json"""
     os.remove(f"pmfs_{file}.json")
 
 
 if __name__ == "__main__":
     # test_create_data()
-    #print(timeit("test_create_data()", number=1, globals=globals()))
+    print(timeit("test_create_data()", number=1, globals=globals()))
     print(timeit("create_data()", number=1, globals=globals()))
     # create_map()
     # create_mf()
