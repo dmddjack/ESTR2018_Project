@@ -182,8 +182,6 @@ def create_pmfs(file: int | pd.DataFrame = 0) -> None | str:
         return result
 
 
-
-
 def create_data(file: int | np.ndarray = 0) -> None | dict:
     """Create all the required data for wordle_bot.py in a row."""
     if isinstance(file, int):
@@ -218,9 +216,6 @@ def del_pmfs(file=0) -> None:
     """Delete pmfs_{file}.json"""
     os.remove(f"pmfs_{file}.json")
 
-def del_word_lists(file=0) -> None:
-    """Delete word_list_{file}.json"""
-    os.remove(f"word_list_{file}.json")
 
 def del_word_lists(file=0) -> None:
     """Delete word_list_{file}.json"""
