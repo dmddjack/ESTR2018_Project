@@ -216,9 +216,10 @@ def del_pmfs(file=0) -> None:
     os.remove(f"pmfs_{file}.json")
 
 
-def del_word_lists(file=0) -> None:
+def del_word_lists(file=None) -> None:
     """Delete word_list_{file}.json"""
-    os.remove(f"word_list_{file}.json")
+    if file is not None:
+        os.remove(f"word_list_{file}.json")
 
 
 def del_data(file=0) -> None:
