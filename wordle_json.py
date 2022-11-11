@@ -1,11 +1,11 @@
 import json
 import os
-from timeit import timeit
 
 import numpy as np
 import pandas as pd
 
 from wordle import check_word, iternary
+from wordle_bot import two_step_greedy, one_step_greedy
 
 
 class Wordle(int):
@@ -182,10 +182,6 @@ def create_pmfs(file: int | pd.DataFrame = 0) -> None | str:
         return result
 
 
-def create_greedy() -> None | str:
-    """Store the initial result of one_step_greedy and two_step_greedy in the corresponding JSON file
-    to speed up the program."""
-    pass
 
 
 def create_data(file: int | np.ndarray = 0) -> None | dict:
@@ -208,28 +204,31 @@ def test_create_data():
     print("Done.")
 
 
-def del_map(file=0) -> None | str:
+def del_map(file=0) -> None:
     """Delete input_answer_map_{file}.json"""
     os.remove(f"input_answer_map_{file}.json")
 
 
-def del_mf(file=0) -> None | str:
+def del_mf(file=0) -> None:
     """Delete input_mass_function_{file}.json"""
     os.remove(f"input_mass_function_{file}.json")
 
 
-def del_pmfs(file=0) -> None | str:
+def del_pmfs(file=0) -> None:
     """Delete pmfs_{file}.json"""
     os.remove(f"pmfs_{file}.json")
 
 
+def del_data(file=0) -> None:
+    del_map(file)
+    del_mf(file)
+    del_pmfs(file)
+
+
 if __name__ == "__main__":
-    # test_create_data()
-    print(timeit("test_create_data()", number=1, globals=globals()))
-    print(timeit("create_data()", number=1, globals=globals()))
+    create_data()
     # create_map()
     # create_mf()
     # del_map()
     # del_mf()
     # create_pmf()
-    pass
