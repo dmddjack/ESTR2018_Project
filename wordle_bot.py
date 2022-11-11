@@ -5,7 +5,7 @@ from time import time, gmtime, strftime
 import numpy as np
 
 import wordle_json as wj
-
+from wordle import plot_pmf
 
 def info(p: float | np.ndarray) -> float:
     """Return information of the input probability p"""
@@ -32,7 +32,7 @@ def entropy(pmf: list[float]) -> float:
 def eliminate(guess: str, pattern: str, file: int | dict = 0, write: bool = True) -> None | dict:
     """Eliminate words that does not comply with the guess and the pattern. n is the number of times of attempt.
     store the result in a new txt file, and create the corresponding JSON file."""
-    if file == int:
+    if isinstance(file, int):
         with open(f"input_mass_function_{file - 1}.json", "r") as in_f:
             words = json.load(in_f)[guess][pattern]
     else:
@@ -120,6 +120,7 @@ def bot() -> None:
     for i in range(1, 7):
         guess = input("Please input your guess:")
         pattern = input("please input the returned pattern:")
+        plot_pmf(guess, pattern, i-1)
         if pattern == '22222':
             for i in range(1, i):
                 wj.del_data(i)
@@ -135,4 +136,4 @@ def simulator(start_word="tares") -> None:
 
 
 if __name__ == "__main__":
-    create_greedy()
+    bot()

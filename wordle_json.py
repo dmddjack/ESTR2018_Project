@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from wordle import check_word, iternary
-from wordle_bot import two_step_greedy, one_step_greedy
+# from wordle_bot import two_step_greedy, one_step_greedy
 
 
 class Wordle(int):
@@ -218,11 +218,15 @@ def del_pmfs(file=0) -> None:
     """Delete pmfs_{file}.json"""
     os.remove(f"pmfs_{file}.json")
 
+def del_word_lists(file=0) -> None:
+    """Delete word_list_{file}.json"""
+    os.remove(f"word_list_{file}.json")
 
 def del_data(file=0) -> None:
     del_map(file)
     del_mf(file)
     del_pmfs(file)
+    del_word_lists(file)
 
 
 if __name__ == "__main__":

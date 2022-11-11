@@ -1,5 +1,10 @@
 # This is a simplified Wordle game
+import json
+import math
 import random
+
+import matplotlib.pyplot as plt
+
 
 def ternary(n: int) -> str:
     """Turn a decimal into a ternary string"""
@@ -83,6 +88,39 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
     return answer if is_answer else ans_list
 
 
+def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
+    """plot pmf for guess word
+    """
+    with open(f"pmfs_{i}.json", "r") as f:
+        pmfs = json.load(f)
+
+    pmf = pmfs[guess]
+    sorted_item = sorted(pmf.items(),key=lambda x :x[1], reverse=True)
+
+    patterns = [item[0] for item in sorted_item]
+    p_desc = [item[1] for item in sorted_item]
+    infos = [math.log2(1/p) if p != 0 else 0 for p in p_desc]
+
+    index = patterns.index(pattern)
+    p= p_desc[index]
+    info = math.log2(1/p)
+
+    pattern =[str(i) for i in pattern]
+    pattern_str =','.join(pattern)
+    plt.subplot(211)
+    plt.bar([i for i in range(len(p_desc))], p_desc, color='blue')
+    plt.title('P({})={:.6f}'.format(pattern_str, p))
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+            wspace=None, hspace=0.4)
+
+    plt.subplot(212)
+    plt.bar([i for i in range(len(infos))], infos, color='red')
+    plt.title('Info({})={:.6f}'.format(pattern_str, info))
+    plt.show()
+    print('possibility:', p)
+    print('get information:', info)
+
+
 def main() -> None:
     """The flow of the game"""
     attempt = 1
@@ -93,6 +131,7 @@ def main() -> None:
         while True:  # make sure that the user's guess is in the word list
             guess = str(input('Please enter your guess: '))
             if guess in generate_answer(seed, is_answer=False):
+                plot_pmf(guess, check_word(guess, answer))
                 break
             else:
                 print('Not in the answer list. Please enter again. ')
