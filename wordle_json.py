@@ -222,6 +222,11 @@ def del_word_lists(file=0) -> None:
     """Delete word_list_{file}.json"""
     os.remove(f"word_list_{file}.json")
 
+def del_word_lists(file=0) -> None:
+    """Delete word_list_{file}.json"""
+    os.remove(f"word_list_{file}.json")
+
+
 def del_data(file=0) -> None:
     del_map(file)
     del_mf(file)
