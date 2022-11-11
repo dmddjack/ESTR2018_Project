@@ -90,6 +90,13 @@ def pardot(a, b, nblocks, mblocks, dot_func=do_dot):
 '''
 
 
+def create_json(file_name: str = None, data: dict = None) -> None:
+    """Create a JSON file with the given file name and dict data."""
+    if file_name is not None:
+        with open(f"{file_name}.json", "w") as f:
+            json.dump(data, f, indent=4)
+
+
 def create_map(file=0) -> None | pd.DataFrame:
     """Create a 2D JSON file that the first key is guess, second key is answer,
     stored value is a 5-digit ternary string."""
@@ -100,10 +107,10 @@ def create_map(file=0) -> None | pd.DataFrame:
         return result
 
     if isinstance(file, int):
-        with open(f"word_list_{file}.txt", "r") as in_f, open(f"input_answer_map_{file}.json", "w") as out_f:
+        with open(f"word_list_{file}.txt", "r") as in_f:
             words = np.array(in_f.read().split())
             result = find_map(words).to_dict("index")
-            json.dump(result, out_f, indent=4)
+            create_json(f"input_answer_map_{file}", result)
             print(f"File input_answer_map_{file}.json created.")
     elif isinstance(file, np.ndarray):
         """
@@ -139,10 +146,10 @@ def create_mf(file: int | pd.DataFrame = 0) -> None | dict:
         return result
 
     if isinstance(file, int):
-        with open(f"input_answer_map_{file}.json", "r") as in_f, open(f"input_mass_function_{file}.json", "w") as out_f:
+        with open(f"input_answer_map_{file}.json", "r") as in_f:
             in_ans_map = json.load(in_f)
             result = find_mass_function(in_ans_map)
-            json.dump(result, out_f, indent=4)
+            create_json(f"input_mass_function_{file}", result)
             print(f"File input_mass_function_{file}.json created.")
     elif isinstance(file, pd.DataFrame):
         file = file.to_dict("index")
@@ -151,7 +158,7 @@ def create_mf(file: int | pd.DataFrame = 0) -> None | dict:
         return result
 
 
-def create_pmfs(file: int | pd.DataFrame = 0) -> None | str:
+def create_pmfs(file: int | pd.DataFrame = 0) -> None | dict:
     """Create a 2D JSON file as a lists of PMF of random variable X given the guess, where X is the possible output
     patterns encoded as a 5-digit ternary string. The first key is guess, the second key is the 5-digit ternary number,
     the output is the probability."""
@@ -166,10 +173,10 @@ def create_pmfs(file: int | pd.DataFrame = 0) -> None | str:
         return result
 
     if isinstance(file, int):
-        with open(f"input_mass_function_{file}.json", "r") as in_f, open(f"pmfs_{file}.json", "w") as out_f:
+        with open(f"input_mass_function_{file}.json", "r") as in_f:
             mass_func = json.load(in_f)
             result = find_pmfs(mass_func)
-            json.dump(result, out_f, indent=4)
+            create_json(f"pmfs_{file}", result)
             print(f"File pmfs_{file}.json created.")
     elif isinstance(file, pd.DataFrame):
         file = file.transpose()
@@ -181,22 +188,27 @@ def create_pmfs(file: int | pd.DataFrame = 0) -> None | str:
         return result
 
 
-def create_data(file: int | np.ndarray = 0) -> None | dict:
+def create_data(file: int | np.ndarray = 0, step=1) -> None | dict | tuple[dict, dict]:
     """Create all the required data for wordle_bot.py in a row."""
     if isinstance(file, int):
         create_map(file)
         create_mf(file)
         create_pmfs(file)
-    elif isinstance(file, np.ndarray):
+    elif isinstance(file, np.ndarray) and step == 1:
         pmfs = create_pmfs(create_map(file))
         return pmfs
+    elif isinstance(file, np.ndarray) and step == 2:
+        in_out_map = create_map(file)
+        pmfs, mass_func = create_pmfs(in_out_map), create_mf(in_out_map)
+        return pmfs, mass_func
 
 
 def test_create_data():
     """For debugging only."""
     with open("word_list_0.txt", "r") as in_f, open("test_result.json", "w") as out_f:
         data = in_f.read().split()
-        result = create_data(np.array(data))
+        pmfs, mass_func = create_data(np.array(data), step=2)
+        result = {"pmfs": pmfs, "mass_func": mass_func}
         json.dump(result, out_f, indent=4)
     print("Done.")
 
@@ -219,7 +231,7 @@ def del_pmfs(file=0) -> None:
 def del_word_lists(file=None) -> None:
     """Delete word_list_{file}.json"""
     if file is not None:
-        os.remove(f"word_list_{file}.json")
+        os.remove(f"word_list_{file}.txt")
 
 
 def del_data(file=0) -> None:
@@ -230,7 +242,7 @@ def del_data(file=0) -> None:
 
 
 if __name__ == "__main__":
-    create_data()
+    test_create_data()
     # create_map()
     # create_mf()
     # del_map()
