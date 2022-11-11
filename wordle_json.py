@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 
 from wordle import check_word, iternary
-# from wordle_bot import two_step_greedy, one_step_greedy
 
 
 class Wordle(int):
