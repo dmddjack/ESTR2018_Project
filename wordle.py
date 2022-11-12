@@ -117,7 +117,7 @@ def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
     plt.ylim([0, p_desc[0] * 1.2])
     plt.xticks(np.arange(0,len(patterns),5),patterns[0:len(patterns):5],rotation=80,size=6)
     plt.annotate('P({})={:.6f}'.format(pattern_str, p), (index, p), (index - length / 10., p + (p_desc[0] - p) * 0.2), weight='light', color='cadetblue', fontsize=6)
-    # plt.text(125, 0.063, 'P({})={:.6f}'.format(pattern_str, p), ha='left', va='top', fontdict={'size':10,'color':'cadetblue'}) # 每次作图位置不固定
+    # plt.text(125, 0.063, 'P({})={:.6f}'.format(pattern_str, p), ha='left', va='top', fontdict={'size':10,'color':'cadetblue'})
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.4)
 
     plt.subplot(212)
@@ -152,7 +152,7 @@ def main() -> None:
             else:
                 print('Not in the answer list. Please enter again. ')
         print(f"{check_word(guess, answer):>30}")
-        eliminate(guess, check_word(guess, answer), attempt) # 跑完第二步报错
+        eliminate(guess, check_word(guess, answer), attempt)
         if check_word(guess, answer) == '22222':
             print(f'Correct! Number of attempt: {attempt}.')
             break
