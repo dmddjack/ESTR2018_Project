@@ -170,7 +170,7 @@ def bot(step=1) -> None:
     print("fin.")
 
 
-def simulator() -> None:
+def simulator(step=1) -> None:
     """Simulate playing the game using wordle bot. Iterate over all possible answers.
     Return the average number of attempts using the algorithm."""
     start_time = time()
@@ -178,8 +178,12 @@ def simulator() -> None:
     with open("word_list_0.txt", "r") as f:
         word_list = f.read().split()[:total_word]
 
-    with open(f"two_step_entropy.json", "r") as f:
-        start_word = list(json.load(f).items())[0][0]
+    if step == 2:
+        with open(f"two_step_entropy.json", "r") as f:
+            start_word = list(json.load(f).items())[0][0]
+    elif step == 1:
+        with open(f"one_step_entropy.json", "r") as f:
+            start_word = list(json.load(f).items())[0][0]
 
     with open("input_mass_function_0.json", "r") as f:
         base_mass_func = json.load(f)
@@ -195,29 +199,36 @@ def simulator() -> None:
             pattern = check_word(guess, answer)
 
             if pattern == '22222':
+                print(i)
                 break
 
             # pass file data as parameter to avoid file I/O delay
             pmfs, mass_func = eliminate(guess, pattern, write=False, file=mass_func, step=2)
-            entropy_list = two_step_greedy(i, disp=6, data=(pmfs, mass_func))
+            if step == 2:
+                entropy_list = two_step_greedy(i, disp=6, data=(pmfs, mass_func))
 
-            # print(guess, answer, pattern)
-            # print(entropy_list)
+                # print(guess, answer, pattern)
+                # print(entropy_list)
 
-            all_same = True
-            first_entropy = entropy_list[0][1]
-            for guess, value in entropy_list:
-                if first_entropy - value < 1e-6:
-                    continue
+                all_same = True
+                first_entropy = entropy_list[0][1]
+                for guess, value in entropy_list:
+                    if first_entropy - value < 1e-6:
+                        continue
+                    else:
+                        all_same = False
+                        break
+                if all_same:
+                    entropy_list = one_step_greedy(i, disp=1, data=pmfs)
+
+                    print("Using one-step greedy algorithm.")
                 else:
-                    all_same = False
-                    break
-            if all_same:
-                entropy_list = one_step_greedy(i, disp=1, data=pmfs)
+                    print("Using two-step greedy algorithm.")
 
+            elif step == 1:
+                entropy_list = one_step_greedy(i, disp=1, data=pmfs)
                 print("Using one-step greedy algorithm.")
-            else:
-                print("Using two-step greedy algorithm.")
+
             guess = entropy_list[0][0]
         progress = timer(start_time, progress, total_word)
         total_count += i
