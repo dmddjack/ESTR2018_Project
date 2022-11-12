@@ -139,7 +139,7 @@ def bot(step=1) -> None:
             plot_pmf(guess, pattern, i - 1)
         if pattern == '22222':
             for j in range(1, i):
-                del_data(j)
+                del_data(j,is_del_word_lists=True)
             break
 
         eliminate(guess, pattern, i)

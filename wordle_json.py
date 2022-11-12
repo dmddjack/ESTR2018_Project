@@ -240,11 +240,12 @@ def del_word_lists(file=None) -> None:
         os.remove(f"word_list_{file}.txt")
 
 
-def del_data(file=0) -> None:
+def del_data(file=0, is_del_word_lists=False) -> None:
     del_map(file)
     del_mf(file)
     del_pmfs(file)
-    del_word_lists(file)
+    if is_del_word_lists:
+        del_word_lists(file)
 
 
 if __name__ == "__main__":

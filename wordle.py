@@ -4,6 +4,7 @@ import math
 import random
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def ternary(n: int) -> str:
@@ -107,15 +108,27 @@ def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
 
     pattern =[str(i) for i in pattern]
     pattern_str =','.join(pattern)
+    length = len(p_desc)
     plt.subplot(211)
-    plt.bar([i for i in range(len(p_desc))], p_desc, color='blue')
-    plt.title('P({})={:.6f}'.format(pattern_str, p))
-    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
-            wspace=None, hspace=0.4)
+    plt.bar([i for i in range(len(p_desc))], p_desc, color='slateblue')
+    plt.title('PMF')
+    plt.bar(index,p,color='cadetblue')
+    plt.xlim([-1, length + 1])
+    plt.ylim([0, p_desc[0] * 1.2])
+    plt.xticks(np.arange(0,len(patterns),5),patterns[0:len(patterns):5],rotation=80,size=6)
+    plt.annotate('P({})={:.6f}'.format(pattern_str, p), (index, p), (index - length / 10., p + (p_desc[0] - p) * 0.2), weight='light', color='cadetblue', fontsize=6)
+    # plt.text(125, 0.063, 'P({})={:.6f}'.format(pattern_str, p), ha='left', va='top', fontdict={'size':10,'color':'cadetblue'}) # 每次作图位置不固定
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.4)
 
     plt.subplot(212)
-    plt.bar([i for i in range(len(infos))], infos, color='red')
-    plt.title('Info({})={:.6f}'.format(pattern_str, info))
+    plt.bar([i for i in range(len(infos))], infos, color='lightcoral')
+    plt.title('Information Spectrum')
+    plt.bar(index,info,color='cadetblue')
+    plt.xlim([-1, length + 1])
+    plt.ylim([0, infos[-1] * 1.2])
+    plt.xticks(np.arange(0,len(patterns),5),patterns[0:len(patterns):5],rotation=80,size=6)
+    plt.annotate('P({})={:.6f}'.format(pattern_str, info), (index, info), (index - length / 10., info + (infos[-1] - info) * 0.2), weight='light', color='cadetblue', fontsize=6)
+    # plt.text(-2.5, 11, 'Info({})={:.6f}'.format(pattern_str, info), ha='left', va='top', fontdict={'size':10,'color':'cadetblue'})
     plt.show()
     print('possibility:', p)
     print('get information:', info)
@@ -123,6 +136,9 @@ def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
 
 def main() -> None:
     """The flow of the game"""
+    from wordle_bot import eliminate
+    from wordle_json import del_data
+
     attempt = 1
     opportunity = eval(input('Please enter the maximum number of attempts: '))
     seed = eval(input('Please enter a seed: '))
@@ -131,11 +147,12 @@ def main() -> None:
         while True:  # make sure that the user's guess is in the word list
             guess = str(input('Please enter your guess: '))
             if guess in generate_answer(seed, is_answer=False):
-                plot_pmf(guess, check_word(guess, answer))
+                plot_pmf(guess, check_word(guess, answer), attempt-1)
                 break
             else:
                 print('Not in the answer list. Please enter again. ')
         print(f"{check_word(guess, answer):>30}")
+        eliminate(guess, check_word(guess, answer), attempt) # 跑完第二步报错
         if check_word(guess, answer) == '22222':
             print(f'Correct! Number of attempt: {attempt}.')
             break
@@ -145,6 +162,9 @@ def main() -> None:
         print(f'Game over! The answer is "{answer}".')
         """ if the user fails to figure out the answer within the maximum number of attempts,
         print out the correct answer. """
+
+    for j in range(1, attempt):
+        del_data(j, is_del_word_lists=True)
 
 
 if __name__ == '__main__':
