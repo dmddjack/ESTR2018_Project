@@ -117,7 +117,6 @@ def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
     plt.ylim([0, p_desc[0] * 1.2])
     plt.xticks(np.arange(0,len(patterns),5),patterns[0:len(patterns):5],rotation=80,size=6)
     plt.annotate('P({})={:.6f}'.format(pattern_str, p), (index, p), (index - length / 10., p + (p_desc[0] - p) * 0.2), weight='light', color='cadetblue', fontsize=6)
-    # plt.text(125, 0.063, 'P({})={:.6f}'.format(pattern_str, p), ha='left', va='top', fontdict={'size':10,'color':'cadetblue'})
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.4)
 
     plt.subplot(212)
@@ -128,7 +127,6 @@ def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
     plt.ylim([0, infos[-1] * 1.2])
     plt.xticks(np.arange(0,len(patterns),5),patterns[0:len(patterns):5],rotation=80,size=6)
     plt.annotate('P({})={:.6f}'.format(pattern_str, info), (index, info), (index - length / 10., info + (infos[-1] - info) * 0.2), weight='light', color='cadetblue', fontsize=6)
-    # plt.text(-2.5, 11, 'Info({})={:.6f}'.format(pattern_str, info), ha='left', va='top', fontdict={'size':10,'color':'cadetblue'})
     plt.show()
     print('possibility:', p)
     print('get information:', info)
