@@ -124,8 +124,7 @@ def create_greedy() -> None:
 
 def bot(step=1) -> None:
     """A bot that suggests best guess words in a game."""
-    num = ["one", "two"]
-    with open(f"{num[step - 1]}_step_entropy.json", "r") as f:
+    with open(f"two_step_entropy.json", "r") as f:
         entropy_list = list(json.load(f).items())
         print(entropy_list[:10])
 
@@ -139,7 +138,7 @@ def bot(step=1) -> None:
             plot_pmf(guess, pattern, i - 1)
         if pattern == '22222':
             for j in range(1, i):
-                del_data(j,is_del_word_lists=True)
+                del_data(j, is_del_word_lists=True)
             break
 
         eliminate(guess, pattern, i)
@@ -237,7 +236,7 @@ def simulator(step=1) -> None:
             progress = timer(start_time, progress, total_total_word)
             total_count += i
         print(f"avg attempt:{total_count / total_word}")
-        performance.append((start_word ,total_count / total_word))
+        performance.append((start_word, total_count / total_word))
     performance.sort(key=lambda x: x[-1], reverse=True)
     print(performance)
 
