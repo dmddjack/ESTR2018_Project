@@ -91,7 +91,7 @@ def two_step_greedy(n: int = 0, disp: int = 10, data: tuple[dict, dict] = None) 
         pmfs, mass_func = data
 
     entropy_list = []
-    total = min(100, len(pmfs))  # maximum number of top words in one_step greedy to speed up the program.
+    total = min(200, len(pmfs))  # maximum number of top words in one_step greedy to speed up the program.
     count = 1
     top_words = dict(one_step_greedy(n + 1, total, pmfs)).keys()
     for guess, pmf in pmfs.items():
@@ -174,66 +174,73 @@ def simulator(step=1) -> None:
     """Simulate playing the game using wordle bot. Iterate over all possible answers.
     Return the average number of attempts using the algorithm."""
     start_time = time()
-    total_word = 5800
-    with open("word_list_0.txt", "r") as f:
-        word_list = f.read().split()[:total_word]
 
-    if step == 2:
-        with open(f"two_step_entropy.json", "r") as f:
-            start_word = list(json.load(f).items())[0][0]
-    elif step == 1:
-        with open(f"one_step_entropy.json", "r") as f:
-            start_word = list(json.load(f).items())[0][0]
+    with open("past_ans.txt", "r") as f:
+        word_list = f.read().split()
+
+    with open(f"two_step_entropy.json", "r") as f:
+        start_word_list = list(json.load(f).items())
+
+    total_total_word = len(word_list) * len(start_word_list)
+    total_word = len(word_list)
+    # always use words from two_step_entropy.json algo
+    # with open(f"one_step_entropy.json", "r") as f:
+    #    start_word = list(json.load(f).items())[0][0]
 
     with open("input_mass_function_0.json", "r") as f:
         base_mass_func = json.load(f)
 
-    total_count = 0
+    performance = []
     progress = 1
-    for answer in word_list:
-        i = 0
-        mass_func = base_mass_func
-        guess = start_word
-        while True:
-            i += 1
-            pattern = check_word(guess, answer)
+    for start_word, _ in start_word_list:
+        total_count = 0
+        for answer in word_list:
+            i = 0
+            mass_func = base_mass_func
+            guess = start_word
+            while True:
+                i += 1
+                pattern = check_word(guess, answer)
 
-            if pattern == '22222':
-                print(i)
-                break
+                if pattern == '22222':
+                    print(i)
+                    break
 
-            # pass file data as parameter to avoid file I/O delay
-            pmfs, mass_func = eliminate(guess, pattern, write=False, file=mass_func, step=2)
-            if step == 2:
-                entropy_list = two_step_greedy(i, disp=6, data=(pmfs, mass_func))
+                # pass file data as parameter to avoid file I/O delay
+                pmfs, mass_func = eliminate(guess, pattern, write=False, file=mass_func, step=2)
+                if step == 2:
+                    entropy_list = two_step_greedy(i, disp=6, data=(pmfs, mass_func))
 
-                # print(guess, answer, pattern)
-                # print(entropy_list)
+                    # print(guess, answer, pattern)
+                    # print(entropy_list)
 
-                all_same = True
-                first_entropy = entropy_list[0][1]
-                for guess, value in entropy_list:
-                    if first_entropy - value < 1e-6:
-                        continue
+                    all_same = True
+                    first_entropy = entropy_list[0][1]
+                    for guess, value in entropy_list:
+                        if first_entropy - value < 1e-6:
+                            continue
+                        else:
+                            all_same = False
+                            break
+                    if all_same:
+                        entropy_list = one_step_greedy(i, disp=1, data=pmfs)
+
+                        print("Using one-step greedy algorithm.")
                     else:
-                        all_same = False
-                        break
-                if all_same:
+                        print("Using two-step greedy algorithm.")
+
+                elif step == 1:
                     entropy_list = one_step_greedy(i, disp=1, data=pmfs)
-
                     print("Using one-step greedy algorithm.")
-                else:
-                    print("Using two-step greedy algorithm.")
 
-            elif step == 1:
-                entropy_list = one_step_greedy(i, disp=1, data=pmfs)
-                print("Using one-step greedy algorithm.")
-
-            guess = entropy_list[0][0]
-        progress = timer(start_time, progress, total_word)
-        total_count += i
-    print(f"avg attempt:{total_count / total_word}")
+                guess = entropy_list[0][0]
+            progress = timer(start_time, progress, total_total_word)
+            total_count += i
+        print(f"avg attempt:{total_count / total_word}")
+        performance.append((start_word ,total_count / total_word))
+    performance.sort(key=lambda x: x[-1], reverse=True)
+    print(performance)
 
 
 if __name__ == "__main__":
-    simulator()
+    simulator(1)
