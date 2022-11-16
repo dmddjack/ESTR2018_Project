@@ -162,7 +162,7 @@ def main() -> None:
         print out the correct answer. """
 
     for j in range(1, attempt):
-        del_data(j, is_del_word_lists=True)
+        del_data(j)
 
 
 if __name__ == '__main__':
