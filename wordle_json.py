@@ -197,15 +197,15 @@ def create_pmfs(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
 def create_data(file: int | np.ndarray = 0, step=1, debug=False) -> None | dict | tuple[dict, dict]:
     """Create all the required data for wordle_bot.py in a row."""
     if isinstance(file, int):
-        create_map(file,debug)
-        create_mf(file,debug)
-        create_pmfs(file,debug)
+        create_map(file, debug)
+        create_mf(file, debug)
+        create_pmfs(file, debug)
     elif isinstance(file, np.ndarray) and step == 1:
-        pmfs = create_pmfs(create_map(file),debug)
+        pmfs = create_pmfs(create_map(file), debug)
         return pmfs
     elif isinstance(file, np.ndarray) and step == 2:
-        in_out_map = create_map(file,debug)
-        pmfs, mass_func = create_pmfs(in_out_map,debug), create_mf(in_out_map,debug)
+        in_out_map = create_map(file, debug)
+        pmfs, mass_func = create_pmfs(in_out_map, debug), create_mf(in_out_map, debug)
         return pmfs, mass_func
 
 
@@ -213,7 +213,7 @@ def test_create_data():
     """For debugging only."""
     with open("word_list_0.txt", "r") as in_f, open("test_result.json", "w") as out_f:
         data = in_f.read().split()
-        pmfs, mass_func = create_data(np.array(data), step=2,debug=True)
+        pmfs, mass_func = create_data(np.array(data), step=2, debug=True)
         result = {"pmfs": pmfs, "mass_func": mass_func}
         json.dump(result, out_f, indent=4)
     print("Done.")
@@ -221,37 +221,53 @@ def test_create_data():
 
 def del_map(file=0) -> None:
     """Delete input_answer_map_{file}.json"""
-    os.remove(f"input_answer_map_{file}.json")
+    try:
+        os.remove(f"input_answer_map_{file}.json")
+    except OSError:
+        pass
 
 
 def del_mf(file=0) -> None:
     """Delete input_mass_function_{file}.json"""
-    os.remove(f"input_mass_function_{file}.json")
+    try:
+        os.remove(f"input_mass_function_{file}.json")
+    except OSError:
+        pass
 
 
 def del_pmfs(file=0) -> None:
     """Delete pmfs_{file}.json"""
-    os.remove(f"pmfs_{file}.json")
+    try:
+        os.remove(f"pmfs_{file}.json")
+    except OSError:
+        pass
 
 
 def del_word_lists(file=None) -> None:
     """Delete word_list_{file}.json"""
-    if file is not None:
-        os.remove(f"word_list_{file}.txt")
+    if file != 0:
+        try:
+            os.remove(f"word_list_{file}.txt")
+        except OSError:
+            pass
 
 
-def del_data(file=0, is_del_word_lists=False) -> None:
-    del_map(file)
-    del_mf(file)
-    del_pmfs(file)
-    if is_del_word_lists:
-        del_word_lists(file)
+def del_data(file=None) -> None:
+    if file != None:
+        if file == -2:  # hard delete
+            for i in range(0, 7):
+                del_data(i)
+        if file == -1:  # soft delete
+            for i in range(1, 7):
+                del_data(i)
+        else:
+            del_map(file)
+            del_mf(file)
+            del_pmfs(file)
+            del_word_lists(file)
 
 
 if __name__ == "__main__":
+    # create_data(debug=True)
+    del_data(-1)
     create_data(debug=True)
-    # create_map()
-    # create_mf()
-    # del_map()
-    # del_mf()
-    # create_pmf()
