@@ -161,8 +161,7 @@ def main() -> None:
         """ if the user fails to figure out the answer within the maximum number of attempts,
         print out the correct answer. """
 
-    for j in range(1, attempt):
-        del_data(j)
+    del_data(file=-1, max=attempt)
 
 
 if __name__ == '__main__':
