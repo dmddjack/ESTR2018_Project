@@ -59,6 +59,24 @@ def eliminate(guess: str, pattern: str, file: int | dict = 0, write: bool = True
         return create_data(np.array(words), step)
 
 
+def over_fitting(entropy_data):
+    """Over-fit the dataset to the feasible answers."""
+    with open("answer_list.txt", "r") as f:
+        ans_list = f.read().split()
+
+    greatest_entropy = entropy_data[0][1]
+    pos = 0
+    for index, data in enumerate(entropy_data):
+        word, value = data
+        if greatest_entropy - value < 1e-5:
+            pos = index
+        else:
+            break
+    for j in range(pos + 1):
+        if entropy_data[j][0] in ans_list:
+            entropy_data.insert(0, entropy_data.pop(j))
+
+
 def one_step_greedy(n: int = 0, disp: int = 10, data: dict = None) -> list[tuple]:
     """Use the greedy algorithm to find the maximum entropy and the corresponding word in a single step.
     disp indicates the number of items to be returned. the whole list is returned if disp == -1.
@@ -122,23 +140,23 @@ def create_greedy() -> None:
     print("two step done.")
 
 
-def bot(step=1) -> None:
+def bot(step=1, plot=False) -> None:
     """A bot that suggests best guess words in a game."""
     with open(f"two_step_entropy.json", "r") as f:
         entropy_list = list(json.load(f).items())
         print(entropy_list[:10])
 
-    for i in range(1, 7):
+    for i in range(1, 10):
         guess = input("Please input your guess:")
         if len(guess) != 5 or guess.isdigit():
             guess = entropy_list[0][0]
             print("Get invalid or empty input. Use default input instead.")
         pattern = input("please input the returned pattern:")
-        if False:
+        if plot:
             plot_pmf(guess, pattern, i - 1)
         if pattern == '22222':
-            for j in range(1, i):
-                del_data(j, is_del_word_lists=True)
+            del_data(file=-1, max=i)
+            print(f"number of attempt: {i}")
             break
 
         eliminate(guess, pattern, i)
@@ -164,6 +182,7 @@ def bot(step=1) -> None:
         elif step == 1:
             entropy_list = one_step_greedy(i)
 
+        over_fitting(entropy_list)
         print(entropy_list)
 
     print("fin.")
@@ -178,7 +197,7 @@ def simulator(step=1) -> None:
         word_list = f.read().split()
 
     with open(f"two_step_entropy.json", "r") as f:
-        start_word_list = list(json.load(f).items())
+        start_word_list = list(json.load(f).items())[:20]
 
     total_total_word = len(word_list) * len(start_word_list)
     total_word = len(word_list)
@@ -231,7 +250,10 @@ def simulator(step=1) -> None:
                 elif step == 1:
                     entropy_list = one_step_greedy(i, disp=1, data=pmfs)
                     print("Using one-step greedy algorithm.")
+                else:
+                    raise ValueError("Invalid step size!")
 
+                over_fitting(entropy_list)
                 guess = entropy_list[0][0]
             progress = timer(start_time, progress, total_total_word)
             total_count += i
