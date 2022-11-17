@@ -252,19 +252,29 @@ def del_word_lists(file=None) -> None:
             pass
 
 
-def del_data(file=None) -> None:
-    if file != None:
+def del_data(file=None, max=6) -> None:
+    if file is not None:
         if file == -2:  # hard delete
-            for i in range(0, 7):
+            for i in range(0, max + 1):
                 del_data(i)
         if file == -1:  # soft delete
-            for i in range(1, 7):
+            for i in range(1, max + 1):
                 del_data(i)
         else:
             del_map(file)
             del_mf(file)
             del_pmfs(file)
             del_word_lists(file)
+
+
+def update_ans_history():
+    """Reformat the ans_list.txt file."""
+    with open("past_ans.txt") as f:
+        lst = f.read().split()
+
+    with open("past_ans.txt", "w") as f:
+        for each in lst:
+            f.write(each.lower() + "\n")
 
 
 if __name__ == "__main__":
