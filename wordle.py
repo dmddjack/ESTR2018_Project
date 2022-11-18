@@ -90,43 +90,45 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
 
 
 def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
-    """plot pmf for guess word
-    """
+    """plot pmf for guess word"""
     with open(f"pmfs_{i}.json", "r") as f:
         pmfs = json.load(f)
 
     pmf = pmfs[guess]
-    sorted_item = sorted(pmf.items(),key=lambda x :x[1], reverse=True)
+    sorted_item = sorted(pmf.items(), key=lambda x: x[1], reverse=True)
 
     patterns = [item[0] for item in sorted_item]
     p_desc = [item[1] for item in sorted_item]
-    infos = [math.log2(1/p) if p != 0 else 0 for p in p_desc]
+    infos = [math.log2(1 / p) if p != 0 else 0 for p in p_desc]
 
     index = patterns.index(pattern)
-    p= p_desc[index]
-    info = math.log2(1/p)
+    p = p_desc[index]
+    info = math.log2(1 / p)
 
-    pattern =[str(i) for i in pattern]
-    pattern_str =','.join(pattern)
+    pattern = [str(i) for i in pattern]
+    pattern_str = ','.join(pattern)
     length = len(p_desc)
     plt.subplot(211)
     plt.bar([i for i in range(len(p_desc))], p_desc, color='slateblue')
     plt.title('PMF')
-    plt.bar(index,p,color='cadetblue')
+    plt.bar(index, p, color='cadetblue')
     plt.xlim([-1, length + 1])
     plt.ylim([0, p_desc[0] * 1.2])
-    plt.xticks(np.arange(0,len(patterns),5),patterns[0:len(patterns):5],rotation=80,size=6)
-    plt.annotate('P({})={:.6f}'.format(pattern_str, p), (index, p), (index - length / 10., p + (p_desc[0] - p) * 0.2), weight='light', color='cadetblue', fontsize=6)
+    plt.xticks(np.arange(0, len(patterns), 5), patterns[0:len(patterns):5], rotation=80, size=6)
+    plt.annotate('P({})={:.6f}'.format(pattern_str, p), (index, p), (index - length / 10., p + (p_desc[0] - p) * 0.2),
+                 weight='light', color='cadetblue', fontsize=6)
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.4)
 
     plt.subplot(212)
     plt.bar([i for i in range(len(infos))], infos, color='lightcoral')
     plt.title('Information Spectrum')
-    plt.bar(index,info,color='cadetblue')
+    plt.bar(index, info, color='cadetblue')
     plt.xlim([-1, length + 1])
     plt.ylim([0, infos[-1] * 1.2])
-    plt.xticks(np.arange(0,len(patterns),5),patterns[0:len(patterns):5],rotation=80,size=6)
-    plt.annotate('P({})={:.6f}'.format(pattern_str, info), (index, info), (index - length / 10., info + (infos[-1] - info) * 0.2), weight='light', color='cadetblue', fontsize=6)
+    plt.xticks(np.arange(0, len(patterns), 5), patterns[0:len(patterns):5], rotation=80, size=6)
+    plt.annotate('P({})={:.6f}'.format(pattern_str, info), (index, info),
+                 (index - length / 10., info + (infos[-1] - info) * 0.2), weight='light', color='cadetblue', fontsize=6)
+    # plt.savefig("test.png", dpi=300)
     plt.show()
     print('possibility:', p)
     print('get information:', info)
@@ -145,7 +147,7 @@ def main() -> None:
         while True:  # make sure that the user's guess is in the word list
             guess = str(input('Please enter your guess: '))
             if guess in generate_answer(seed, is_answer=False):
-                plot_pmf(guess, check_word(guess, answer), attempt-1)
+                plot_pmf(guess, check_word(guess, answer), attempt - 1)
                 break
             else:
                 print('Not in the answer list. Please enter again. ')
