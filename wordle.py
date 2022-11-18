@@ -79,7 +79,7 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
     """Generate a random answer from the word list if is_answer == True
     and return the answer list if is_answer == False."""
     random.seed(seed)
-    with open('word_list_0.txt', 'r') as f:
+    with open('answer_list.txt', 'r') as f:
         ans_list = []
         lines = f.readlines()
         for line in lines:
