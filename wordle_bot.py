@@ -72,7 +72,8 @@ def over_fitting(entropy_data):
             pos = index
         else:
             break
-    for j in range(pos + 1):
+
+    for j in range(1, pos + 1):
         if entropy_data[j][0] in ans_list:
             entropy_data.insert(0, entropy_data.pop(j))
 
@@ -227,7 +228,7 @@ def simulator(step=1) -> None:
                 # pass file data as parameter to avoid file I/O delay
                 pmfs, mass_func = eliminate(guess, pattern, write=False, file=mass_func, step=2)
                 if step == 2:
-                    entropy_list = two_step_greedy(i, disp=6, data=(pmfs, mass_func))
+                    entropy_list = two_step_greedy(i, disp=10, data=(pmfs, mass_func))
 
                     # print(guess, answer, pattern)
                     # print(entropy_list)
@@ -241,25 +242,26 @@ def simulator(step=1) -> None:
                             all_same = False
                             break
                     if all_same:
-                        entropy_list = one_step_greedy(i, disp=1, data=pmfs)
+                        entropy_list = one_step_greedy(i, disp=10, data=pmfs)
 
                         print("Using one-step greedy algorithm.")
                     else:
                         print("Using two-step greedy algorithm.")
 
                 elif step == 1:
-                    entropy_list = one_step_greedy(i, disp=1, data=pmfs)
+                    entropy_list = one_step_greedy(i, disp=10, data=pmfs)
                     print("Using one-step greedy algorithm.")
                 else:
                     raise ValueError("Invalid step size!")
 
                 over_fitting(entropy_list)
+
                 guess = entropy_list[0][0]
             progress = timer(start_time, progress, total_total_word)
             total_count += i
         print(f"avg attempt:{total_count / total_word}")
         performance.append((start_word, total_count / total_word))
-    performance.sort(key=lambda x: x[-1], reverse=True)
+    performance.sort(key=lambda x: x[-1], reverse=False)
     print(performance)
 
 
