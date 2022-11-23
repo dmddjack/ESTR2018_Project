@@ -36,50 +36,11 @@ def check_word(guess: str, answer: str) -> str:
     return "".join(result)
 
 
-def check_word_old(guess: str, answer: str) -> str:
-    """Check the guess and return the matching pattern as ternary number."""
-    result = ''
-
-    def redundancy(guess: str, answer: str, func: bool = True) -> bool | str:
-        flag = 0
-        for word in guess:
-            if word in answer and guess.count(word) > answer.count(word):
-                flag = 1
-                alpha = word
-                break
-            else:
-                continue
-        if func:
-            return True if flag == 1 else False
-        if not func:
-            return alpha
-
-    for char, word in zip(answer, guess):
-        if word in answer and word in char:
-            result += '2'
-        elif word in answer:
-            result += '1'
-        else:
-            result += '0'
-
-    if not redundancy(guess, answer, func=True):
-        return result
-    else:
-        alpha = redundancy(guess, answer, func=False)
-        index1 = guess.find(alpha)
-        index2 = guess.find(alpha, index1 + 1)
-        if index2 == answer.find(alpha):
-            result = result[:index1] + '0' + result[index1 + 1:]
-        else:
-            result = result[:index2] + '0' + result[index2 + 1:]
-        return result
-
-
 def generate_answer(seed: int, is_answer=True) -> str | list:
     """Generate a random answer from the word list if is_answer == True
     and return the answer list if is_answer == False."""
     random.seed(seed)
-    with open('answer_list.txt', 'r') as f:
+    with open('./data/answer_list.txt', 'r') as f:
         ans_list = []
         lines = f.readlines()
         for line in lines:
@@ -91,7 +52,7 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
 
 def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
     """plot pmf for guess word"""
-    with open(f"pmfs_{i}.json", "r") as f:
+    with open(f"./data/pmfs_{i}.json", "r") as f:
         pmfs = json.load(f)
 
     pmf = pmfs[guess]
@@ -134,25 +95,24 @@ def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
     print('get information:', info)
 
 
-def main() -> None:
+def main(seed=None) -> None:
     """The flow of the game"""
-    from wordle_bot import eliminate
     from wordle_json import del_data
 
     attempt = 1
     opportunity = eval(input('Please enter the maximum number of attempts: '))
-    seed = eval(input('Please enter a seed: '))
+    if seed is None:
+        seed = eval(input('Please enter a seed: '))
     answer = generate_answer(seed, True)
     while attempt <= opportunity or opportunity == -1:  # if opportunity == -1, the number of attempts is unlimited
         while True:  # make sure that the user's guess is in the word list
             guess = str(input('Please enter your guess: '))
             if guess in generate_answer(seed, is_answer=False):
-                plot_pmf(guess, check_word(guess, answer), attempt - 1)
                 break
             else:
                 print('Not in the answer list. Please enter again. ')
         print(f"{check_word(guess, answer):>30}")
-        eliminate(guess, check_word(guess, answer), attempt)
+
         if check_word(guess, answer) == '22222':
             print(f'Correct! Number of attempt: {attempt}.')
             break
@@ -163,7 +123,7 @@ def main() -> None:
         """ if the user fails to figure out the answer within the maximum number of attempts,
         print out the correct answer. """
 
-    del_data(file=-1, max=attempt)
+    del_data(file=-1, _max=attempt)
 
 
 if __name__ == '__main__':
