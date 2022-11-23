@@ -20,80 +20,10 @@ class Wordle(int):
         return check_word(self.word, other.word)
 
 
-'''
-class WordleManager(BaseManager):
-    """Discarded."""
-    pass
-
-
-class WordleProxy(NamespaceProxy):
-    """Discarded."""
-    _exposed_ = ('__getattribute__', '__setattr__', '__delattr__', '__mul__')
-
-    def __mul__(self, other):
-        callmethod = object.__getattribute__(self, '_callmethod')
-        return callmethod('__mul__', args=(other,))
-
-
-def blockshaped(arr, nrows, ncols):
-    """
-    ***Discarded.***
-    Return an array of shape (nrows, ncols, n, m) where
-    n * nrows, m * ncols = arr.shape.
-    This should be a view of the original array.
-    """
-    h, w = arr.shape
-    n, m = h // nrows, w // ncols
-    return arr.reshape(nrows, n, ncols, m).swapaxes(1, 2)
-
-
-def do_dot(a, b, out):
-    """Discarded."""
-    # np.dot(a, b, out)  # does not work. maybe because out is not C-contiguous?
-    out[:] = np.matmul(a, b)  # less efficient because the output is stored in a temporary array?
-    #print("hi")
-
-
-def pardot(a, b, nblocks, mblocks, dot_func=do_dot):
-    """
-    ***Discarded.***
-    Return the matrix product a * b.
-    The product is split into nblocks * mblocks partitions that are performed
-    in parallel threads.
-    """
-    n_jobs = nblocks * mblocks
-    print('running {} jobs in parallel'.format(n_jobs))
-
-    out = np.empty((a.shape[0], b.shape[1]), dtype=np.ubyte)
-
-    out_blocks = blockshaped(out, nblocks, mblocks)
-    a_blocks = blockshaped(a, nblocks, 1)
-    b_blocks = blockshaped(b, 1, mblocks)
-
-    processes = []
-    for i in range(nblocks):
-        for j in range(mblocks):
-            pr = mp.Process(target=dot_func,
-                            args=(a_blocks[i, 0, :, :], b_blocks[0, j, :, :], out_blocks[i, j, :, :]))
-            pr.start()
-            processes.append(pr)
-
-    for th in processes:
-        th.join()
-        print(f"th {th} done")
-    print("all th done")
-    result = np.empty((a.shape[0], b.shape[1]), dtype="<U5")
-    for i in range(a.shape[0]):
-        for j in range(b.shape[1]):
-            result[i, j] = ternary(out[i, j])
-    return result
-'''
-
-
 def create_json(file_name: str = None, data: dict = None) -> None:
     """Create a JSON file with the given file name and dict data."""
     if file_name is not None:
-        with open(f"{file_name}.json", "w") as f:
+        with open(f"./data/{file_name}.json", "w") as f:
             json.dump(data, f, indent=4)
 
 
@@ -107,7 +37,7 @@ def create_map(file=0, debug=False) -> None | pd.DataFrame:
         return result
 
     if isinstance(file, int):
-        with open(f"word_list_{file}.txt", "r") as in_f:
+        with open(f"./data/word_list_{file}.txt", "r") as in_f:
             words = np.array(in_f.read().split())
             result = find_map(words).to_dict("index")
             create_json(f"input_answer_map_{file}", result)
@@ -148,7 +78,7 @@ def create_mf(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
         return result
 
     if isinstance(file, int):
-        with open(f"input_answer_map_{file}.json", "r") as in_f:
+        with open(f"./data/input_answer_map_{file}.json", "r") as in_f:
             in_ans_map = json.load(in_f)
             result = find_mass_function(in_ans_map)
             create_json(f"input_mass_function_{file}", result)
@@ -177,7 +107,7 @@ def create_pmfs(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
         return result
 
     if isinstance(file, int):
-        with open(f"input_mass_function_{file}.json", "r") as in_f:
+        with open(f"./data/input_mass_function_{file}.json", "r") as in_f:
             mass_func = json.load(in_f)
             result = find_pmfs(mass_func)
             create_json(f"pmfs_{file}", result)
@@ -211,7 +141,7 @@ def create_data(file: int | np.ndarray = 0, step=1, debug=False) -> None | dict 
 
 def test_create_data():
     """For debugging only."""
-    with open("word_list_0.txt", "r") as in_f, open("test_result.json", "w") as out_f:
+    with open("./data/word_list_0.txt", "r") as in_f, open("./data/test_result.json", "w") as out_f:
         data = in_f.read().split()
         pmfs, mass_func = create_data(np.array(data), step=2, debug=True)
         result = {"pmfs": pmfs, "mass_func": mass_func}
@@ -222,7 +152,7 @@ def test_create_data():
 def del_map(file=0) -> None:
     """Delete input_answer_map_{file}.json"""
     try:
-        os.remove(f"input_answer_map_{file}.json")
+        os.remove(f"./data/input_answer_map_{file}.json")
     except OSError:
         pass
 
@@ -230,7 +160,7 @@ def del_map(file=0) -> None:
 def del_mf(file=0) -> None:
     """Delete input_mass_function_{file}.json"""
     try:
-        os.remove(f"input_mass_function_{file}.json")
+        os.remove(f"./data/input_mass_function_{file}.json")
     except OSError:
         pass
 
@@ -238,7 +168,7 @@ def del_mf(file=0) -> None:
 def del_pmfs(file=0) -> None:
     """Delete pmfs_{file}.json"""
     try:
-        os.remove(f"pmfs_{file}.json")
+        os.remove(f"./data/pmfs_{file}.json")
     except OSError:
         pass
 
@@ -247,19 +177,29 @@ def del_word_lists(file=None) -> None:
     """Delete word_list_{file}.json"""
     if file != 0:
         try:
-            os.remove(f"word_list_{file}.txt")
+            os.remove(f"./data/word_list_{file}.txt")
         except OSError:
             pass
 
 
-def del_data(file=None, max=6) -> None:
+def del_data(file=None, _max=6) -> None:
     if file is not None:
-        if file == -2:  # hard delete
-            for i in range(0, max + 1):
+        if file == -2:  # hard delete, back to the state before initialization
+            for i in range(0, _max + 1):
                 del_data(i)
+            try:
+                os.remove("./data/one_step_entropy.json")
+            except OSError:
+                pass
+            try:
+                os.remove("./data/two_step_entropy.json")
+            except OSError:
+                pass
+
         if file == -1:  # soft delete
-            for i in range(1, max + 1):
+            for i in range(1, _max + 1):
                 del_data(i)
+
         else:
             del_map(file)
             del_mf(file)
@@ -269,12 +209,13 @@ def del_data(file=None, max=6) -> None:
 
 def update_ans_history():
     """Reformat the ans_list.txt file."""
-    with open("past_ans.txt") as f:
+    with open("./data/past_ans.txt") as f:
         lst = f.read().split()
 
-    with open("past_ans.txt", "w") as f:
+    with open("./data/past_ans.txt", "w") as f:
         for each in lst:
             f.write(each.lower() + "\n")
+    # last update: 23 Nov 2022
 
 
 if __name__ == "__main__":
