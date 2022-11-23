@@ -32,8 +32,10 @@ asset
 atoll
 atone
 audit
+avert
 awake
 awful
+axiom
 badge
 badly
 baker
@@ -64,6 +66,7 @@ booze
 boozy
 bough
 brake
+brave
 break
 briar
 bribe
@@ -155,6 +158,7 @@ evade
 exist
 exult
 farce
+fault
 favor
 feign
 ferry
@@ -202,6 +206,7 @@ glean
 gloat
 gloom
 glory
+glyph
 golem
 goner
 goose
@@ -333,6 +338,7 @@ pound
 power
 prick
 pride
+prime
 primo
 print
 prize
@@ -445,6 +451,7 @@ taunt
 tease
 their
 theme
+there
 thorn
 those
 thumb
