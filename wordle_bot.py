@@ -199,12 +199,11 @@ def simulator(step=1) -> None:
     """Simulate playing the game using wordle bot. Iterate over all possible answers.
     Return the average number of attempts using the algorithm."""
     start_time = time()
-
     with open("./data/past_ans.txt", "r") as f:
         word_list = f.read().split()
 
     with open("./data/two_step_entropy.json", "r") as f:  # always use two step data to choose start word
-        start_word_list = list(json.load(f).items())[:1]
+        start_word_list = list(json.load(f).items())[:20]
 
     total_total_word = len(word_list) * len(start_word_list)
     total_word = len(word_list)
@@ -218,6 +217,7 @@ def simulator(step=1) -> None:
     performance = []
     progress = 1
     for start_word, _ in start_word_list:
+        attempt_stat = [0] * 8
         total_count = 0
         for answer in word_list:
             i = 0
@@ -265,7 +265,9 @@ def simulator(step=1) -> None:
                 guess = entropy_list[0][0]
             progress = timer(start_time, progress, total_total_word)
             total_count += i
+            attempt_stat[min(i, 7)] += 1
         print(f"avg attempt:{total_count / total_word}")
+        print(f"attempt distribution: {attempt_stat[1:]}")
         performance.append((start_word, total_count / total_word))
     performance.sort(key=lambda x: x[-1], reverse=False)
     print(performance)
