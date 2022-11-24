@@ -115,7 +115,6 @@ def two_step_greedy(n: int = 0, disp: int = 10, data: tuple[dict, dict] = None, 
     entropy_list = []
     total = min(200, len(pmfs))  # restrict maximum number of top words in one_step greedy to speed up the program.
 
-
     top_words = dict(one_step_greedy(n + 1, total, pmfs)).keys()
     for guess, pmf in pmfs.items():
         if guess not in top_words:
@@ -123,7 +122,7 @@ def two_step_greedy(n: int = 0, disp: int = 10, data: tuple[dict, dict] = None, 
         sec_ord_entropy = 0  # define the entropy at the second step
         for pattern, p in pmf.items():  # find maximum entropy at the second step
             sub_pmfs = eliminate(guess, pattern, file=mass_func, write=False)
-            sec_ord_entropy += pmfs[guess][pattern] * one_step_greedy(n + 1, 1, sub_pmfs)[0][1]
+            sec_ord_entropy += p * one_step_greedy(n + 1, 1, sub_pmfs)[0][1]
             # weighted average of entropy
         entropy_list.append((guess, entropy(pmf.values()) + sec_ord_entropy))
         if debug:
@@ -141,7 +140,7 @@ def create_greedy() -> None:
     create_json("one_step_entropy", dict(one_step))
     print("one step done.")
 
-    two_step = two_step_greedy(disp=-1,debug=True)
+    two_step = two_step_greedy(disp=-1, debug=True)
     create_json("two_step_entropy", dict(two_step))
     print("two step done.")
 
@@ -164,7 +163,6 @@ def bot(step=1, plot=False) -> None:
         pattern = input("please input the returned pattern:")
         if plot:
             plot_pmf(guess, pattern, i - 1)
-
 
         eliminate(guess, pattern, i)
         if step == 2:
@@ -203,7 +201,7 @@ def simulator(step=1) -> None:
         word_list = f.read().split()
 
     with open("./data/two_step_entropy.json", "r") as f:  # always use two step data to choose start word
-        start_word_list = list(json.load(f).items())[:20]
+        start_word_list = list(json.load(f).items())[:1]
 
     total_total_word = len(word_list) * len(start_word_list)
     total_word = len(word_list)
