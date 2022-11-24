@@ -50,6 +50,24 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
     return answer if is_answer else ans_list
 
 
+def plot_attempt_distribution() -> None:
+    player = [0.02, 5.58, 22.35, 32.99, 24.08, 11.94, 3.04]
+    bot = [0.00, 4.41, 44.64, 41.38, 8.04, 0.96, 0.57]
+    x = ["1", "2", "3", "4", "5", "6", ">7"]
+    x_axis = np.arange(7)
+
+    plt.figure(figsize=(9, 6), dpi=300)
+    plt.bar_label(plt.bar(x_axis - .2, player, color="green", width=.4, label="Global Player"))
+    plt.bar_label(plt.bar(x_axis + .2, bot, color="blue", width=.4, label="Wordle Bot"))
+    plt.xticks(x_axis, x)
+    plt.xlabel("Number of Attempts", fontsize=12)
+    plt.ylabel("(%)", rotation=0, loc="top", fontsize=13)
+    plt.title("Attempt Distribution of Global Player and Wordle Bot in Wordle Game", fontsize=14)
+    plt.legend()
+    plt.savefig("data/attempt_distribution.png", dpi=200)
+    plt.show()
+
+
 def plot_pmf(guess: str, pattern: str, i: int = 0) -> None:
     """plot pmf for guess word"""
     with open(f"./data/pmfs_{i}.json", "r") as f:
