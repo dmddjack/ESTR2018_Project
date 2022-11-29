@@ -40,14 +40,13 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
     """Generate a random answer from the word list if is_answer == True
     and return the answer list if is_answer == False."""
     random.seed(seed)
+    with open('./data/word_list_0.txt', 'r') as f:
+        allowed_word = f.read().split()
     with open('./data/answer_list.txt', 'r') as f:
-        ans_list = []
-        lines = f.readlines()
-        for line in lines:
-            ans_list.append(line[:5])  # exclude the "newline"
+        ans_list = f.read().split()
     answer = random.sample(ans_list, 1)[0]  # get a random answer from the word list
     f.close()
-    return answer if is_answer else ans_list
+    return answer if is_answer else allowed_word
 
 
 def plot_attempt_distribution() -> None:
@@ -57,8 +56,8 @@ def plot_attempt_distribution() -> None:
     x_axis = np.arange(7)
 
     plt.figure(figsize=(9, 6), dpi=300)
-    plt.bar_label(plt.bar(x_axis - .2, player, color="green", width=.4, label="Global Player"))
-    plt.bar_label(plt.bar(x_axis + .2, bot, color="blue", width=.4, label="Wordle Bot"))
+    plt.bar_label(plt.bar(x_axis - .2, player, color="#c8b653", width=.4, label="Global Player"))
+    plt.bar_label(plt.bar(x_axis + .2, bot, color="#6ca965", width=.4, label="Wordle Bot"))
     plt.xticks(x_axis, x)
     plt.xlabel("Number of Attempts", fontsize=12)
     plt.ylabel("(%)", rotation=0, loc="top", fontsize=13)

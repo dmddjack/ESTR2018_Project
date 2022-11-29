@@ -161,6 +161,10 @@ def bot(step=1, plot=False) -> None:
             guess = entropy_list[0][0]
             print(f"Get invalid or empty input. Use default input '{guess}' instead.")
         pattern = input("please input the returned pattern:")
+        if pattern == '22222':
+            del_data(file=-1, _max=i)
+            print(f"number of attempt: {i}")
+            break
         if plot:
             plot_pmf(guess, pattern, i - 1)
 
@@ -201,7 +205,7 @@ def simulator(step=1) -> None:
         word_list = f.read().split()
 
     with open("./data/two_step_entropy.json", "r") as f:  # always use two step data to choose start word
-        start_word_list = list(json.load(f).items())[:1]
+        start_word_list = list(json.load(f).items())[:10]
 
     total_total_word = len(word_list) * len(start_word_list)
     total_word = len(word_list)
