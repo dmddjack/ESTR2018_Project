@@ -59,8 +59,8 @@ def eliminate(guess: str, pattern: str, file: int | dict = 0, write: bool = True
         return create_data(np.array(words), step)
 
 
-def over_fitting(entropy_data):
-    """Over-fit the dataset to the feasible answers."""
+def rearrange(entropy_data):
+    """Fit the dataset to the feasible answers."""
     with open("./data/answer_list.txt", "r") as f:
         ans_list = f.read().split()
 
@@ -191,7 +191,7 @@ def bot(step=1, plot=False) -> None:
         elif step == 1:
             entropy_list = one_step_greedy(i)
 
-        over_fitting(entropy_list)
+        rearrange(entropy_list)
         print(entropy_list)
 
     print("Fin.")
@@ -262,7 +262,7 @@ def simulator(step=1) -> None:
                 else:
                     raise ValueError("Invalid step size!")
 
-                over_fitting(entropy_list)
+                rearrange(entropy_list)
 
                 guess = entropy_list[0][0]
             progress = timer(start_time, progress, total_total_word)
