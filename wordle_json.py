@@ -44,15 +44,6 @@ def create_map(file=0, debug=False) -> None | pd.DataFrame:
             if debug:
                 print(f"File input_answer_map_{file}.json created.")
     elif isinstance(file, np.ndarray):
-        """
-        WordleManager.register("Wordle", Wordle, WordleProxy)
-        with WordleManager() as manager:
-            word_index = np.ndarray((1, len(file)), dtype=object)
-            for i in range(len(file)):
-                word_index[0, i] = manager.Wordle(i, file)
-            result = np.array(pardot(word_index.reshape(len(file), 1),
-                                     word_index, 10 , 10), dtype="<U5")
-        """
         result = find_map(file)
         if debug:
             print(f"Dict map created.")
@@ -126,6 +117,8 @@ def create_pmfs(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
 
 def create_data(file: int | np.ndarray = 0, step=1, debug=False) -> None | dict | tuple[dict, dict]:
     """Create all the required data for wordle_bot.py in a row."""
+    if debug:
+        print("Creating data")
     if isinstance(file, int):
         create_map(file, debug)
         create_mf(file, debug)

@@ -194,7 +194,7 @@ def bot(step=1, plot=False) -> None:
         rearrange(entropy_list)
         print(entropy_list)
 
-    print("Fin.")
+    print("Finished")
 
 
 def simulator(step=1) -> None:
@@ -204,14 +204,11 @@ def simulator(step=1) -> None:
     with open("./data/past_ans.txt", "r") as f:
         word_list = f.read().split()
 
-    with open("./data/two_step_entropy.json", "r") as f:  # always use two step data to choose start word
+    with open("./data/two_step_entropy.json", "r") as f:  # always use words from two_step_entropy.json
         start_word_list = list(json.load(f).items())[:10]
 
     total_total_word = len(word_list) * len(start_word_list)
     total_word = len(word_list)
-    # always use words from two_step_entropy.json algo
-    # with open("./data/one_step_entropy.json", "r") as f:
-    #    start_word = list(json.load(f).items())[0][0]
 
     with open("./data/input_mass_function_0.json", "r") as f:
         base_mass_func = json.load(f)
