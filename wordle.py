@@ -1,4 +1,10 @@
-# This is a simplified Wordle game
+"""
+ESTR 2018 
+Project Name: Wordle: From Probability to Information Theory
+Coder: FONG, Shi Yuk | LIU, Linqi | DAI, Ruyi
+This is a modified Wordle game.
+"""
+
 import json
 import math
 import random
