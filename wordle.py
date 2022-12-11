@@ -1,5 +1,5 @@
 """
-ESTR 2018 
+ESTR 2018
 Project Name: Wordle: From Probability to Information Theory
 Coder: FONG, Shi Yuk | LIU, Linqi | DAI, Ruyi
 This is a modified Wordle game.
@@ -57,17 +57,19 @@ def generate_answer(seed: int, is_answer=True) -> str | list:
 
 def plot_attempt_distribution() -> None:
     player = [0.02, 5.58, 22.35, 32.99, 24.08, 11.94, 3.04]
-    bot = [0.00, 4.41, 44.64, 41.38, 8.04, 0.96, 0.57]
+    bot_1 = [0, 4.21, 40.23, 45.02, 8.62, 0.77, 1.15]
+    bot_2 = [0.00, 4.41, 44.64, 41.38, 8.04, 0.96, 0.57]
     x = ["1", "2", "3", "4", "5", "6", ">7"]
     x_axis = np.arange(7)
 
-    plt.figure(figsize=(9, 6), dpi=300)
-    plt.bar_label(plt.bar(x_axis - .2, player, color="#c8b653", width=.4, label="Global Player"))
-    plt.bar_label(plt.bar(x_axis + .2, bot, color="#6ca965", width=.4, label="Wordle Bot"))
+    plt.figure(figsize=(11, 6), dpi=200)
+    plt.bar_label(plt.bar(x_axis - .3, player, color="#c8b653", width=.3, label="Global Player"))
+    plt.bar_label(plt.bar(x_axis, bot_1, color="#787c7f", width=.3, label="Wordle Bot (Model 1)"))
+    plt.bar_label(plt.bar(x_axis + .3, bot_2, color="#6ca965", width=.3, label="Wordle Bot (Model 2)"))
     plt.xticks(x_axis, x)
     plt.xlabel("Number of Attempts", fontsize=12)
     plt.ylabel("(%)", rotation=0, loc="top", fontsize=13)
-    plt.title("Attempt Distribution of Global Player and Wordle Bot in Wordle Game", fontsize=14)
+    plt.title("Attempt Distribution of Global Player and Wordle Bots in Wordle", fontsize=16)
     plt.legend()
     plt.savefig("data/attempt_distribution.png", dpi=200)
     plt.show()
