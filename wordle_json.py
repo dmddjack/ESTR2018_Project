@@ -37,6 +37,8 @@ def create_map(file=0, debug=False) -> None | pd.DataFrame:
         return result
 
     if isinstance(file, int):
+        if debug:
+            print(f"Creating input_answer_map_{file}.json")
         with open(f"./data/word_list_{file}.txt", "r") as in_f:
             words = np.array(in_f.read().split())
             result = find_map(words).to_dict("index")
@@ -44,6 +46,8 @@ def create_map(file=0, debug=False) -> None | pd.DataFrame:
             if debug:
                 print(f"File input_answer_map_{file}.json created.")
     elif isinstance(file, np.ndarray):
+        if debug:
+            print(f"Creating dict map.")
         result = find_map(file)
         if debug:
             print(f"Dict map created.")
@@ -69,6 +73,8 @@ def create_mf(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
         return result
 
     if isinstance(file, int):
+        if debug:
+            print(f"Creating input_mass_function_{file}.json")
         with open(f"./data/input_answer_map_{file}.json", "r") as in_f:
             in_ans_map = json.load(in_f)
             result = find_mass_function(in_ans_map)
@@ -76,6 +82,8 @@ def create_mf(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
             if debug:
                 print(f"File input_mass_function_{file}.json created.")
     elif isinstance(file, pd.DataFrame):
+        if debug:
+            print(f"Creating mass function")
         file = file.to_dict("index")
         result = find_mass_function(file)
         if debug:
@@ -98,6 +106,8 @@ def create_pmfs(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
         return result
 
     if isinstance(file, int):
+        if debug:
+            print(f"Creating pmfs_{file}.json")
         with open(f"./data/input_mass_function_{file}.json", "r") as in_f:
             mass_func = json.load(in_f)
             result = find_pmfs(mass_func)
@@ -105,6 +115,8 @@ def create_pmfs(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
             if debug:
                 print(f"File pmfs_{file}.json created.")
     elif isinstance(file, pd.DataFrame):
+        if debug:
+            print(f"Creating dict pmf.")
         file = file.transpose()
         result = {}
         for col in file:
@@ -117,8 +129,6 @@ def create_pmfs(file: int | pd.DataFrame = 0, debug=False) -> None | dict:
 
 def create_data(file: int | np.ndarray = 0, step=1, debug=False) -> None | dict | tuple[dict, dict]:
     """Create all the required data for wordle_bot.py in a row."""
-    if debug:
-        print("Creating data")
     if isinstance(file, int):
         create_map(file, debug)
         create_mf(file, debug)
