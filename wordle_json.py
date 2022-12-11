@@ -222,6 +222,5 @@ def update_ans_history():
 
 
 if __name__ == "__main__":
-    # create_data(debug=True)
     del_data(-1)
     create_data(debug=True)

@@ -76,7 +76,6 @@ def rearrange(entropy_data):
     for j in range(1, pos + 1):
         if entropy_data[j][0] in ans_list:
             entropy_data.insert(0, entropy_data.pop(j))
-            print(entropy_data)
 
 
 def one_step_greedy(n: int = 0, disp: int = 10, data: dict = None) -> list[tuple]:
