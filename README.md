@@ -1,5 +1,9 @@
 # Wordle: From Probability To Information Theory
 A Wordle solver based on information theory  
+Group member: 
+- FONG. Shi Yuk
+- LIU, Linqi
+- DAI, Ruyi
 ## How to Use the Code
 - Wordle game
     - Open `wordle_demo.ipynb`, then run code cells in it.
